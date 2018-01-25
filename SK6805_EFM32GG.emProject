@@ -1,0 +1,168 @@
+<!DOCTYPE CrossStudio_Project_File>
+<solution Name="SK6805_EFM32GG" target="8" version="2">
+  <project Name="SK6805_EFM32GG">
+    <configuration
+      Name="Common"
+      Placement="Flash"
+      Target="EFM32GG990F1024"
+      arm_architecture="v7M"
+      arm_core_type="Cortex-M3"
+      arm_endian="Little"
+      arm_fpu_type="None"
+      arm_interwork="No"
+      arm_linker_heap_size="256"
+      arm_linker_process_stack_size="0"
+      arm_linker_stack_size="256"
+      arm_simulator_memory_simulation_parameter="ROM;0x00000000;0x00100000;RAM;0x20000000;0x00020000"
+      arm_target_debug_interface_type="ADIv5"
+      arm_target_device_name="EFM32GG990F1024"
+      arm_target_interface_type="SWD"
+      c_preprocessor_definitions="EFM32GG990F1024;__EFM32GGxxx_FAMILY;__EFM32GG990_SUBFAMILY;ARM_MATH_CM3;FLASH_PLACEMENT=1"
+      c_user_include_directories="$(ProjectDir)/CMSIS_4/CMSIS/Include;$(ProjectDir)/EFM32GGxxx/CMSIS/Device/Include"
+      debug_register_definition_file="$(ProjectDir)/EFM32GG990F1024_Registers.xml"
+      debug_target_connection="J-Link"
+      gcc_entry_point="Reset_Handler"
+      linker_memory_map_file="$(ProjectDir)/EFM32GG990F1024_MemoryMap.xml"
+      linker_section_placement_file="$(ProjectDir)/flash_placement.xml"
+      macros="DeviceHeaderFile=$(PackagesDir)/EFM32GGxxx/CMSIS/Device/Include/em_device.h;DeviceLibraryIdentifier=M3l;DeviceSystemFile=$(PackagesDir)/EFM32GGxxx/CMSIS/Device/Source/system_efm32gg.c;DeviceVectorsFile=$(PackagesDir)/EFM32GGxxx/Source/EFM32GG990F1024_Vectors.s;DeviceFamily=EFM32GGxxx;DeviceSubFamily=EFM32GG990;Target=EFM32GG990F1024;Placement=Flash"
+      project_directory=""
+      project_type="Executable"
+      target_reset_script="Reset();"
+      target_script_file="$(ProjectDir)/EFM32GG_Target.js"
+      target_trace_initialize_script="EnableTrace(&quot;$(TraceInterfaceType)&quot;)" />
+    <folder Name="CMSIS Files">
+      <file file_name="em_device.h" />
+      <file file_name="system_efm32gg.c">
+        <configuration
+          Name="Common"
+          default_code_section=".init"
+          default_const_section=".init_rodata" />
+      </file>
+    </folder>
+    <folder Name="Script Files">
+      <file file_name="EFM32GGxxx_Target.js">
+        <configuration Name="Common" file_type="Reset Script" />
+      </file>
+    </folder>
+    <folder Name="Source Files">
+      <configuration Name="Common" filter="c;cpp;cxx;cc;h;s;asm;inc" />
+      <file file_name="main.c" />
+      <file file_name="Drivers/dmactrl.c" />
+    </folder>
+    <folder Name="System Files">
+      <file file_name="thumb_crt0.s">
+        <configuration Name="Release" build_exclude_from_build="No" />
+      </file>
+      <file file_name="EFM32GGxxx_Startup.s" />
+      <file file_name="EFM32GG990F1024_Vectors.s">
+        <configuration Name="Common" file_type="Assembly" />
+      </file>
+    </folder>
+    <configuration Connection="USB 440005327" Name="Debug" speed="4000" />
+    <folder Name="emlib">
+      <file file_name="emlib/src/em_acmp.c" />
+      <file file_name="emlib/inc/em_acmp.h" />
+      <file file_name="emlib/src/em_adc.c" />
+      <file file_name="emlib/inc/em_adc.h" />
+      <file file_name="emlib/src/em_aes.c" />
+      <file file_name="emlib/inc/em_aes.h" />
+      <file file_name="emlib/src/em_assert.c" />
+      <file file_name="emlib/inc/em_assert.h" />
+      <file file_name="emlib/inc/em_burtc.h" />
+      <file file_name="emlib/src/em_burtc.c" />
+      <file file_name="emlib/src/em_cmu.c" />
+      <file file_name="emlib/inc/em_core.h" />
+      <file file_name="emlib/src/em_cryotimer.c" />
+      <file file_name="emlib/src/em_core.c" />
+      <file file_name="emlib/inc/em_crypto.h" />
+      <file file_name="emlib/inc/em_csen.h" />
+      <file file_name="emlib/src/em_crypto.c" />
+      <file file_name="emlib/inc/em_cmu.h" />
+      <file file_name="emlib/src/em_csen.c" />
+      <file file_name="emlib/src/em_dac.c" />
+      <file file_name="emlib/inc/em_cryotimer.h" />
+      <file file_name="emlib/inc/em_dac.h" />
+      <file file_name="emlib/inc/em_dbg.h" />
+      <file file_name="emlib/inc/em_common.h" />
+      <file file_name="emlib/inc/em_ebi.h" />
+      <file file_name="emlib/src/em_ebi.c" />
+      <file file_name="emlib/inc/em_gpcrc.h" />
+      <file file_name="emlib/src/em_emu.c" />
+      <file file_name="emlib/src/em_gpio.c" />
+      <file file_name="emlib/inc/em_emu.h" />
+      <file file_name="emlib/inc/em_gpio.h" />
+      <file file_name="emlib/inc/em_i2c.h" />
+      <file file_name="emlib/src/em_int.c" />
+      <file file_name="emlib/src/em_idac.c" />
+      <file file_name="emlib/src/em_gpcrc.c" />
+      <file file_name="emlib/src/em_dbg.c" />
+      <file file_name="emlib/inc/em_lcd.h" />
+      <file file_name="emlib/inc/em_dma.h" />
+      <file file_name="emlib/inc/em_int.h" />
+      <file file_name="emlib/src/em_lcd.c" />
+      <file file_name="emlib/src/em_ldma.c" />
+      <file file_name="emlib/inc/em_lesense.h" />
+      <file file_name="emlib/src/em_i2c.c" />
+      <file file_name="emlib/src/em_lesense.c" />
+      <file file_name="emlib/inc/em_can.h" />
+      <file file_name="emlib/inc/em_ldma.h" />
+      <file file_name="emlib/inc/em_letimer.h" />
+      <file file_name="emlib/inc/em_mpu.h" />
+      <file file_name="emlib/src/em_letimer.c" />
+      <file file_name="emlib/src/em_leuart.c" />
+      <file file_name="emlib/inc/em_idac.h" />
+      <file file_name="emlib/src/em_msc.c" />
+      <file file_name="emlib/src/em_mpu.c" />
+      <file file_name="emlib/inc/em_chip.h" />
+      <file file_name="emlib/src/em_opamp.c" />
+      <file file_name="emlib/src/em_dma.c" />
+      <file file_name="emlib/inc/em_pcnt.h" />
+      <file file_name="emlib/inc/em_qspi.h" />
+      <file file_name="emlib/src/em_rmu.c" />
+      <file file_name="emlib/inc/em_opamp.h" />
+      <file file_name="emlib/inc/em_rmu.h" />
+      <file file_name="emlib/inc/em_rtc.h" />
+      <file file_name="emlib/inc/em_ramfunc.h" />
+      <file file_name="emlib/inc/em_system.h" />
+      <file file_name="emlib/src/em_prs.c" />
+      <file file_name="emlib/src/em_rtcc.c" />
+      <file file_name="emlib/inc/em_smu.h" />
+      <file file_name="emlib/src/em_timer.c" />
+      <file file_name="emlib/inc/em_rtcc.h" />
+      <file file_name="emlib/src/em_rtc.c" />
+      <file file_name="emlib/inc/em_timer.h" />
+      <file file_name="emlib/inc/em_vcmp.h" />
+      <file file_name="emlib/src/em_vcmp.c" />
+      <file file_name="emlib/src/em_vdac.c" />
+      <file file_name="emlib/src/em_system.c" />
+      <file file_name="emlib/inc/em_prs.h" />
+      <file file_name="emlib/inc/em_vdac.h" />
+      <file file_name="emlib/inc/em_usart.h" />
+      <file file_name="emlib/src/em_pcnt.c" />
+      <file file_name="emlib/src/em_qspi.c" />
+      <file file_name="emlib/src/em_usart.c" />
+      <file file_name="emlib/inc/em_wdog.h" />
+      <file file_name="emlib/inc/em_leuart.h" />
+      <file file_name="emlib/inc/em_msc.h" />
+      <file file_name="emlib/inc/em_version.h" />
+      <file file_name="emlib/src/em_wdog.c" />
+      <file file_name="emlib/inc/em_bus.h" />
+      <file file_name="emlib/src/em_can.c" />
+    </folder>
+  </project>
+  <configuration
+    Name="Debug"
+    c_preprocessor_definitions="DEBUG"
+    c_system_include_directories="$(StudioDir)/include;$(PackagesDir)/include;$(SolutionDir)/emlib/inc;$(SolutionDir)/Drivers"
+    debug_target_connection="J-Link"
+    gcc_debugging_level="Level 3"
+    gcc_optimization_level="None" />
+  <configuration
+    Name="Release"
+    arm_architecture="v6M"
+    c_preprocessor_definitions="NDEBUG"
+    c_system_include_directories="$(StudioDir)/include;$(PackagesDir)/include;$(SolutionDir)/emlib/inc;$(SolutionDir)/Drivers"
+    gcc_debugging_level="None"
+    gcc_omit_frame_pointer="Yes"
+    gcc_optimization_level="Level 1" />
+</solution>
