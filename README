@@ -1,7 +1,7 @@
 This program controls up to 16 RGB LED ribbons.
-The output is conducted to port D of the DMA chassis on demand from timers.
+Output is made to port D via DMA on demand from timers.
 I tested the Starter Kit EFM32GG-STK3700 using LEDs SK6805,
-It is easy to reconfigure other types of LEDs.
+can easily be reconfigured for other types of LEDs.
 The number of LEDs in the tape is specified at the beginning of the program:
 
 #define TAPE_LENGHT 144
@@ -15,9 +15,9 @@ for amateur use).
 The original message in Russian in UTF-8 encoding:
 
 Эта программа управляет параллаельно до 16 лент RGB LED.
-Вывод ведётся на порт D чезез DMA по зпросу от таймеров.
+Вывод ведётся на порт D через DMA по зпросу от таймеров.
 Тестировал на Starter Kit EFM32GG-STK3700 использую светодиоды SK6805,
-легко может быть перенастроена дяя других типов светодиодов.
+легко может быть перенастроена для других типов светодиодов.
 Число светодиодов в ленте указвыается в начале программы:
 
 #define TAPE_LENGHT 		144
