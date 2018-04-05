@@ -478,6 +478,10 @@ int main(void) {
     /* Go to EM1, while TIMER tuns compare output */
     EMU_EnterEM1();
     if (sinxro) {
+    static c=0;
+
+    if( ++c<70) continue;
+    c=0;
 #ifdef DEBUG
       GPIO_PinOutSet(gpioPortE, 2);
 #endif
@@ -486,7 +490,7 @@ int main(void) {
         0x0F0000, 0x000F00, 0x00000F ,
         0x0F0F00, 0x000F0F, 0x0F000F ,
         0x0F0703, 0x030F07, 0x07030F ,
-        0x000000, 0x000000, 0x000000 
+        0x010101, 0x000101, 0x101000 
    };
 
   static int j=0,k=0;
@@ -542,6 +546,7 @@ int main(void) {
 #ifdef DEBUG
       GPIO_PinOutClear(gpioPortE, 2);
 #endif
+    
     }
   }
 }
