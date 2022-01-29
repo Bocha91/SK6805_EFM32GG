@@ -27,5 +27,9 @@ The original message in Russian in UTF-8 encoding:
 Проект для SEGGER Embedded Studio for ARM Release 3.34 Windows x64 (студия бесплатна 
 для любительского использования).
 
+DOC
+https://www.silabs.com/development-tools/mcu/32-bit/efm32gg-starter-kit#manuals
 
 
+Добавил работу с DS18B20 (датчиком температуры). 
+Теперь на старте надо держать одну из кнопок PB0 или PB1 чтобы стартовала гирлянда, иначе стартует датчиком температуры DS18B20, подключённый к PC6 и 3V3. Также не забываем подтянуть PC6 к +3V3 через 4к7

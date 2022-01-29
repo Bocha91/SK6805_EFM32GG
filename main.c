@@ -1,3 +1,9 @@
+﻿#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "ds18b20/ds18b20.h"
+
 #include "em_device.h"
 #include "em_common.h"
 #include "dmactrl.h"
@@ -7,17 +13,25 @@
 #include "em_dma.h"
 #include "em_emu.h"
 #include "em_gpio.h"
+#include "segmentlcd.h"
+#include "rtcdriver.h"
+
 #include "em_prs.h"
 #include "em_system.h"
 #include "em_timer.h"
-//#include "hal-config.h"
+
+// termometr DS18B20
+#define PWM_FREQ_DS18B20 1000000
+/** Timer used for bringing the system back to EM0. */
+static RTCDRV_TimerID_t xTimerForWakeUp;
+//
 
 // iaeneiaeuiia ?enei aeiaia a eaioa (eaio 16 ia?aeeaeuii)  43,86,129,171
-#define TAPE_LENGHT 120
+#define TAPE_LENGHT 300 //120
 
 int32_t count[3];
 #define PWM_TABLE_SIZE (24 * TAPE_LENGHT)
-#define PWM_FREQ 800000
+#define PWM_FREQ          800000
 #define LOCATION TIMER_ROUTE_LOCATION_LOC1
 #define DMA_CHANNEL_TIMER3CC0 2
 #define DMA_CHANNEL_TIMER3CC1 3
@@ -381,6 +395,38 @@ void TIMER3_IRQHandler(void) {
   setupTimerB();
 }
 
+//=========== DS18B20 ====================
+
+void _delay_us(int us) {
+  uint16_t us1 = us * topValue;
+  //    uint16_t start = TIMER3->CNT;
+  //    while ((TIMER3->CNT - start) < (uint16_t)us1);
+  TIMER3->CNT = 0;
+  while (TIMER3->CNT < (uint16_t)us1)
+    ;
+}
+
+void _delay_ms(int ms) {
+  for (; ms; --ms)
+    _delay_us(1000);
+}
+
+
+volatile uint32_t interval = 10;
+void gpioCallback(uint8_t pin)
+{
+  if (pin == 9) {
+    //BSP_LedToggle(1);
+    if(++interval>9999) interval=9999;
+  } else if (pin == 10) {
+    if(--interval<=0) interval=1;
+    //BSP_LedToggle(0);
+  }
+}
+
+//========================================
+
+
 
 int main(void) {
   /* Initialize chip */
@@ -432,8 +478,103 @@ int main(void) {
 
   /* Enable clock for GPIO module */
   CMU_ClockEnable(cmuClock_GPIO, true);
-  /* Enable clock for TIMER0 module */
-  CMU_ClockEnable(cmuClock_TIMER3, true);
+
+
+
+
+  /* Configure PB9 and PB10 as input */
+  GPIO_PinModeSet(gpioPortB, 9, gpioModeInput, 0);
+  GPIO_PinModeSet(gpioPortB, 10, gpioModeInput, 0);
+  
+  if( GPIO_PinInGet(gpioPortB,9) && GPIO_PinInGet(gpioPortB,10) ) 
+  {
+    // termometr DS18B20
+
+
+
+      /* Register callbacks before setting up and enabling pin interrupt. */
+      GPIOINT_CallbackRegister(9,  gpioCallback);
+      GPIOINT_CallbackRegister(10, gpioCallback);
+
+      /* Set falling edge interrupt for both ports */
+      GPIO_IntConfig(gpioPortB, 9, false, true, true);
+      GPIO_IntConfig(gpioPortB, 10, false, true, true);
+
+      /* Enable interrupt in core for even and odd gpio interrupts */
+      NVIC_ClearPendingIRQ(GPIO_EVEN_IRQn);
+      NVIC_EnableIRQ(GPIO_EVEN_IRQn);
+
+      NVIC_ClearPendingIRQ(GPIO_ODD_IRQn);
+      NVIC_EnableIRQ(GPIO_ODD_IRQn);
+
+      char printbuff[100];
+      int i;
+      double d = 0;
+
+      GPIO_PinModeSet(DS18B20_PORT, DS18B20_DQ, gpioModeWiredAnd, 1);
+  
+  
+      //setupTimerB();
+     {
+      /* Enable clock for TIMER0 module */
+      CMU_ClockEnable(cmuClock_TIMER3, true);
+      TIMER_Reset(TIMER3);
+
+      /* Select timer parameters */
+      TIMER_Init_TypeDef timerInit =
+          {
+              .enable = true,
+              .debugRun = false,
+              .prescale = timerPrescale1, //timerPrescale64,
+              .clkSel = timerClkSelHFPerClk,
+              .fallAction = timerInputActionNone,
+              .riseAction = timerInputActionNone,
+              .mode = timerModeUp,
+              .dmaClrAct = false, /* Clear DMA request when selected channel is active */
+              .quadModeX4 = false,
+              .oneShot = false,
+              .sync = false,
+          };
+
+      //TIMER_TopSet(TIMER3, topValue);
+
+      TIMER_Init(TIMER3, &timerInit);
+      topValue = CMU_ClockFreqGet(cmuClock_HFPER) / PWM_FREQ_DS18B20;
+    }
+    /* Initialize RTC timer. */
+    RTCDRV_Init();
+    RTCDRV_AllocateTimer(&xTimerForWakeUp);
+
+    /* Initialize LCD controller without boost */
+    SegmentLCD_Init(false);
+    SegmentLCD_AllOff();
+
+    for (;;) {
+        d = ds18b20_gettemp();
+        
+        /***** подгон моего личного дптчика под температуру из под мышки ****/
+        d+=0.15;
+        /***** для другого датчика другие надо ставить цыфры ****/
+        
+        //printf("%8.2f\n", d);
+        
+        /* Show Celsius on alphanumeric part of display */
+        i = (int)(d * 10);
+        snprintf(printbuff, 8, "%+2d,%1d%%C", (i / 10), abs(i % 10));
+        /* Show Fahrenheit on numeric part of display */
+        //i = (int)(convertToFahrenheit(temp) * 10);
+        SegmentLCD_Number(interval);
+        SegmentLCD_Symbol(LCD_SYMBOL_DP10, 1);
+        SegmentLCD_Symbol(LCD_SYMBOL_DEGC, 0);
+        SegmentLCD_Symbol(LCD_SYMBOL_DEGF, 1);
+        SegmentLCD_Write(printbuff);
+    
+        /* Sleep for 2 seconds in EM 2 */
+        RTCDRV_StartTimer(xTimerForWakeUp, rtcdrvTimerTypeOneshot, interval*1000, NULL, NULL);
+        EMU_EnterEM2(true);
+    }
+    return 0;
+  }
 
   GPIO_PinModeSet(gpioPortD, 0, gpioModePushPull, 0);
   GPIO_PinModeSet(gpioPortD, 1, gpioModePushPull, 0);
@@ -459,14 +600,19 @@ int main(void) {
   GPIO_PinModeSet(gpioPortE, 2, gpioModePushPull, 0);
   GPIO_PinModeSet(gpioPortE, 3, gpioModePushPull, 0);
 #endif
+
+
+  /* Enable clock for TIMER0 module */
+  CMU_ClockEnable(cmuClock_TIMER3, true);
+
   /* Set Top Value */
   topValue = CMU_ClockFreqGet(cmuClock_HFPER) / PWM_FREQ;
 
 #ifdef DEBUG
   uint16_t *p = &PWMTableA[0][0];
   for (int i = 0; i < PWM_TABLE_SIZE; i += 2) {
-    *(p++) = 0xaaaa;
-    *(p++) = 0x5555;
+    *(p++) = 0;//0xFFFF;//0xaaaa;
+    *(p++) = 0;//0xFFFF;//0x5555;
   }
 
   dbg[1] = *DWT_CYCCNT;
@@ -495,6 +641,7 @@ int main(void) {
 
   static int j=0,k=0;
   int i = j;
+  __NOP();
 
   do{
     color[i++][0].all =init[k++];
