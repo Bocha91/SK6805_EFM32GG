@@ -1,4 +1,5 @@
-﻿#include <stdio.h>
+﻿// UTF-8
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,7 +27,7 @@
 static RTCDRV_TimerID_t xTimerForWakeUp;
 //
 
-// iaeneiaeuiia ?enei aeiaia a eaioa (eaio 16 ia?aeeaeuii)  43,86,129,171
+//  максимальное число диодов в ленте (лент 16 параллельно)  43,86,129,171
 #define TAPE_LENGHT 300 //120
 
 int32_t count[3];
@@ -433,14 +434,14 @@ int main(void) {
   CHIP_Init();
 
   MSC->READCTRL =
-      //                  MSC_READCTRL_MODE_WS2SCBTP  // 2 oaeoa caaa??ee e ?ac?aoaiea i?aaauai?ee aey iaieo aaoaae ia?aoiaa
-      MSC_READCTRL_MODE_WS2          // 2 oaeoa caaa??ee aac ?ac?aoaiea i?aaauai?ee aey iaieo aaoaae ia?aoiaa
-      | MSC_READCTRL_AIDIS           // cai?ao aaoiiaoe?aneiai na?ina eaoa eiiaia i?e caiene ai oeao
-                                     //                | MSC_READCTRL_PREFETCH       // ?ac?aoeou iia?a?a?uaa ?oaiea
-                                     //                | MSC_READCTRL_RAMCEN         // ?ac?aoeou eaoe?iaaiea eiiaia a RAM
-      | MSC_READCTRL_BUSSTRATEGY_DMA // o AIA i?ei?eoao ia?auiey e iao?eoa oei
-                                     //                | MSC_READCTRL_BUSSTRATEGY_CPU  // o CPU i?ei?eoao ia?auiey e iao?eoa oei
-      | MSC_READCTRL_IFCDIS          //Ioee??eou eyo eiiaia aey aioo?aiiae oeyo-iaiyoe
+      //                  MSC_READCTRL_MODE_WS2SCBTP  //  2 такта задержки и разрешение предвыборки для обоих ветвей перехода
+      MSC_READCTRL_MODE_WS2          // 2 такта задержки без разрешение предвыборки для обоих ветвей переход
+      | MSC_READCTRL_AIDIS           // запрет автоматического сброса кеша команд при записи во флеш
+                                     //                | MSC_READCTRL_PREFETCH       // разрешить опережающее чтение
+                                     //                | MSC_READCTRL_RAMCEN         // разрешить кеширование команд в RAM
+      | MSC_READCTRL_BUSSTRATEGY_DMA // у ДМА приоритет обращния к матрице шин
+                                     //                | MSC_READCTRL_BUSSTRATEGY_CPU  // у CPU приоритет обращния к матрице шин
+      | MSC_READCTRL_IFCDIS          //Отключить кэш команд для внутренней флэш-памяти
       ;
 
   //SystemHFXOClock = EFM32_HFXO_FREQ;
@@ -619,6 +620,10 @@ int main(void) {
 #endif
 
   setupTimerA();
+
+  printf("Start LED\n");
+
+
 #define LINE 0
   while (1) {
     /* Go to EM1, while TIMER tuns compare output */
@@ -697,6 +702,7 @@ int main(void) {
     }
   }
 }
+
 void ColorToRAW(void) {
   uint32_t shi;
   int bits;
@@ -712,7 +718,7 @@ void ColorToRAW(void) {
     }
     if (update == false) continue;
 #endif
-    for (shi = 0x00800000, bits = 0; bits < 24; bits++) // oeee ii aeoai aeiaa
+    for (shi = 0x00800000, bits = 0; bits < 24; bits++) // цикл по битам диод
     {
       register uint16_t col = 0x0001;
       register uint16_t PWM = 0x0000;
