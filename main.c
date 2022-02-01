@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// termometr DS18B20
+#define PWM_FREQ_DS18B20 1000000
 #include "ds18b20/ds18b20.h"
 
 #include "em_device.h"
@@ -21,14 +23,13 @@
 #include "em_system.h"
 #include "em_timer.h"
 
-// termometr DS18B20
-#define PWM_FREQ_DS18B20 1000000
+#include "sk6805.h"
+
+
 /** Timer used for bringing the system back to EM0. */
 static RTCDRV_TimerID_t xTimerForWakeUp;
 //
 
-//  максимальное число диодов в ленте (лент 16 параллельно)  43,86,129,171
-#define TAPE_LENGHT 300 //120
 
 int32_t count[3];
 #define PWM_TABLE_SIZE (24 * TAPE_LENGHT)
@@ -43,15 +44,9 @@ DMA_CB_TypeDef cb[3];
 
 uint32_t topValue;
 volatile uint32_t sinxro = 0;
-typedef union {
-  struct {
-    uint8_t g, r, b, a;
-  };
-  uint32_t all;
-} LED_t;
 
 LED_t color[TAPE_LENGHT][16];
-LED_t color1[TAPE_LENGHT][16];
+//LED_t color1[TAPE_LENGHT][16];
 
 uint16_t PWMTableA[TAPE_LENGHT][24]; // = {0x5555,0x0aaaa,0x5555,0x0aaaa,0x5555,0x0aaaa,0x5555,0x0aaaa};
 uint16_t PWMTableFF = 0xFFFF;
@@ -59,6 +54,7 @@ uint16_t PWMTable00 = 0x0000;
 
 void setupTimerA(void);
 void ColorToRAW(void);
+
 void ab(int chennal, int *a, int *b) {
   if (count[chennal] > 1024) {
     *a = 1024;
@@ -429,7 +425,7 @@ void gpioCallback(uint8_t pin)
 
 
 
-int main(void) {
+int main(void) { 
   /* Initialize chip */
   CHIP_Init();
 
@@ -481,8 +477,6 @@ int main(void) {
   CMU_ClockEnable(cmuClock_GPIO, true);
 
 
-
-
   /* Configure PB9 and PB10 as input */
   GPIO_PinModeSet(gpioPortB, 9, gpioModeInput, 0);
   GPIO_PinModeSet(gpioPortB, 10, gpioModeInput, 0);
@@ -490,8 +484,6 @@ int main(void) {
   if( GPIO_PinInGet(gpioPortB,9) && GPIO_PinInGet(gpioPortB,10) ) 
   {
     // termometr DS18B20
-
-
 
       /* Register callbacks before setting up and enabling pin interrupt. */
       GPIOINT_CallbackRegister(9,  gpioCallback);
@@ -553,8 +545,8 @@ int main(void) {
     for (;;) {
         d = ds18b20_gettemp();
         
-        /***** подгон моего личного дптчика под температуру из под мышки ****/
-        d+=0.15;
+        /***** Подгон моего личного датчика под температуру из под моей подмышки. ****/
+        d+=0.15; 
         /***** для другого датчика другие надо ставить цыфры ****/
         
         //printf("%8.2f\n", d);
@@ -577,23 +569,11 @@ int main(void) {
     return 0;
   }
 
-  GPIO_PinModeSet(gpioPortD, 0, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 1, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 2, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 3, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 4, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 5, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 6, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 7, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 8, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 9, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 10, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 11, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 12, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 13, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 14, gpioModePushPull, 0);
-  GPIO_PinModeSet(gpioPortD, 15, gpioModePushPull, 0);
-
+  // программирую столлько выводов сколько заказал лент
+  for(int a=0; a < TAPE_LINE; ++a){
+    GPIO_PinModeSet(gpioPortD, a, gpioModePushPull, 0);
+  }
+  
 #ifdef DEBUG
   /* Set CC0 pin (PD1) as output */
   GPIO_PinModeSet(gpioPortE, 0, gpioModePushPull, 0);
@@ -609,7 +589,9 @@ int main(void) {
   /* Set Top Value */
   topValue = CMU_ClockFreqGet(cmuClock_HFPER) / PWM_FREQ;
 
+
 #ifdef DEBUG
+  // начальная инициализация массива саетодиодов 
   uint16_t *p = &PWMTableA[0][0];
   for (int i = 0; i < PWM_TABLE_SIZE; i += 2) {
     *(p++) = 0;//0xFFFF;//0xaaaa;
@@ -623,19 +605,7 @@ int main(void) {
 
   printf("Start LED\n");
 
-
-#define LINE 0
-  while (1) {
-    /* Go to EM1, while TIMER tuns compare output */
-    EMU_EnterEM1();
-    if (sinxro) {
-    static c=0;
-
-    if( ++c<70) continue;
-    c=0;
-#ifdef DEBUG
-      GPIO_PinOutSet(gpioPortE, 2);
-#endif
+/*
    #define INIT_SIZE 12
    uint32_t init[INIT_SIZE]={ 
         0x0F0000, 0x000F00, 0x00000F ,
@@ -644,61 +614,36 @@ int main(void) {
         0x010101, 0x000101, 0x101000 
    };
 
-  static int j=0,k=0;
-  int i = j;
-  __NOP();
+#define LINE 0
+*/
+  /*
+  static uint8_t colo = 10;
 
-  do{
-    color[i++][0].all =init[k++];
-    if( k>=INIT_SIZE ) k=0;
-  }while( i < TAPE_LENGHT );
-  if( ++j >=12 ) j=0;
+  colo++;
+  color[0][LINE+1].r = colo;
+  color[1][LINE+1].g = colo;
+  color[2][LINE+1].b = colo;
+  */
+    running_RGB_init(1,16);
 
-      if (color[0][LINE].g)             --color[0][LINE].g;
-      else if (color[0][LINE].r)        --color[0][LINE].r;
-      else if (color[0][LINE].b)        --color[0][LINE].b;
-      else {
-        color[0][LINE].g = 0x60;
-        color[0][LINE].r = 0x60;
-        color[0][LINE].b = 0x30;
-      }
-      if (color[1][LINE].r)             --color[1][LINE].r;
-      else if (color[1][LINE].b)        --color[1][LINE].b;
-      else if (color[1][LINE].g)        --color[1][LINE].g;
-      else {
-        color[1][LINE].g = 0x11;
-        color[1][LINE].r = 0x40;
-        color[1][LINE].b = 0x40;
-      }
-
-      if (color[2][LINE].r)             ++color[2][LINE].r;
-      else if (color[2][LINE].g)        ++color[2][LINE].g;
-      else if (color[2][LINE].b)        ++color[2][LINE].b;
-      else {
-        color[2][LINE].g = 0x1;
-        color[2][LINE].r = 0x1;
-        color[2][LINE].b = 0x31;
-      }
-      if (color[3][LINE].b)             ++color[3][LINE].b;
-      else if (color[3][LINE].g)        ++color[3][LINE].g;
-      else if (color[3][LINE].r)        ++color[3][LINE].r;
-      else {
-        color[3][LINE].g = 0x1;
-        color[3][LINE].r = 0x31;
-        color[3][LINE].b = 0x1;
-      }
-
+  while (1) {
+    /* Go to EM1, while TIMER tuns compare output */
 #ifdef DEBUG
-      color[TAPE_LENGHT - 1][LINE].g = 0x55;
-      color[TAPE_LENGHT - 1][LINE].r = 0x05;
-      color[TAPE_LENGHT - 1][LINE].b = 0x0A;
-#endif
-      ColorToRAW();
-      sinxro = 0;
+        GPIO_PinOutClear(gpioPortE, 2);
+#endif  
+    EMU_EnterEM1();
+    if (sinxro) {
 #ifdef DEBUG
-      GPIO_PinOutClear(gpioPortE, 2);
+        GPIO_PinOutSet(gpioPortE, 2);
 #endif
-    
+
+        int flag = 0;
+        flag += running_RGB_run(1,5);
+        flag += colorful_RGB_run(0,25);
+        if( flag == 0) continue; // замедление
+
+        ColorToRAW();
+        sinxro = 0;
     }
   }
 }
@@ -708,21 +653,11 @@ void ColorToRAW(void) {
   int bits;
   int diod;
   for (diod = 0; diod < TAPE_LENGHT; ++diod) {
-#if 0
-    bool update = false;
-    for (int i = 0; i < 16; i++) {
-      if (color1[diod][i].all != color[diod][i].all) {
-        color1[diod][i].all = color[diod][i].all;
-        update = true;
-      }
-    }
-    if (update == false) continue;
-#endif
     for (shi = 0x00800000, bits = 0; bits < 24; bits++) // цикл по битам диод
     {
       register uint16_t col = 0x0001;
       register uint16_t PWM = 0x0000;
-      for (int i = 0; i < 16; i++) {
+      for (int i = 0; i < TAPE_LINE; i++) {
         if (color[diod][i].all & shi) PWM |= col;
         col <<= 1;
       }

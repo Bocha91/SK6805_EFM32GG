@@ -46,16 +46,18 @@
     </folder>
     <folder Name="Source Files">
       <configuration Name="Common" filter="c;cpp;cxx;cc;h;s;asm;inc" />
-      <file file_name="main.c">
-        <configuration
-          Name="Debug"
-          gcc_debugging_level="Level 3"
-          gcc_optimization_level="Level 3 for more speed" />
-      </file>
       <folder Name="ds18b20">
         <file file_name="ds18b20/ds18b20.c" />
         <file file_name="ds18b20/ds18b20.h" />
       </folder>
+      <file file_name="main.c">
+        <configuration
+          Name="Debug"
+          build_exclude_from_build="No"
+          gcc_debugging_level="Level 3"
+          gcc_optimization_level="Level 3 for more speed" />
+      </file>
+      <file file_name="EffectLib.c" />
     </folder>
     <folder Name="System Files">
       <file file_name="thumb_crt0.s">
