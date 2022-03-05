@@ -20,9 +20,21 @@ int accumulating_RGB_run(uint8_t tape, uint32_t speed); // 1 -очень быстро 100 м
 //void accumulating_1_RGB_init(uint8_t tape, uint32_t bright);
 int accumulating_1_RGB_run(uint8_t tape, uint32_t speed); // 1 -очень быстро 100 медленно 200 ещЄ медленнее
 
-
 int accumulating_n_RGB_run(uint8_t tape, uint32_t speed); // 1 -очень быстро 100 медленно 200 ещЄ медленнее
-
+int accumulating_n2_RGB_run(uint8_t tape, uint32_t speed); // 1 -очень быстро 100 медленно 200 ещЄ медленнее
 //void colorful_RGB_init(uint8_t tape, uint32_t bright);
 int colorful_RGB_run(uint8_t tape, uint32_t speed);
 
+typedef struct st_accumulating_n2_RGB{
+    uint8_t  tape;
+    uint32_t speed;
+    int count;// = 0;
+    uint32_t save[20];
+    int clk;// = 0;
+    int dels;// = sqrt(TAPE_LENGHT); // число точек зарождени€
+    int LENS;  // кусочек (его длина)
+    int n2;// =1;  // шаг удлинени€
+    int start;// = 0;
+} st_accumulating_n2_RGB; 
+st_accumulating_n2_RGB st_accumulating_n2_RGB_init(uint8_t tape, uint32_t speed); // speed 1 -очень быстро 100 медленно 200 ещЄ медленнее
+int  st_accumulating_n2_RGB_run(st_accumulating_n2_RGB *this ); // speed 1 -очень быстро 100 медленно 200 ещЄ медленнее

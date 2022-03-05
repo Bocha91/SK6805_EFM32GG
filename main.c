@@ -601,13 +601,18 @@ int main(void) {
   dbg[1] = *DWT_CYCCNT;
 #endif
 
-  setupTimerA();
-
+    sinxro = 0;
   //printf("Start LED\n");
 
-    //running_RGB_init(1,16);
+    //running_RGB_init(0,16);
     //accumulating_RGB_init(2,16);
     //accumulating_1_RGB_init(1,16);
+
+    st_accumulating_n2_RGB st_accumulating_n2_RGB_2_2 = st_accumulating_n2_RGB_init(2,2);
+    st_accumulating_n2_RGB st_accumulating_n2_RGB_1_1 = st_accumulating_n2_RGB_init(1,1);
+
+  setupTimerA();
+
 
   while (1) {
     /* Go to EM1, while TIMER tuns compare output */
@@ -621,10 +626,12 @@ int main(void) {
 #endif
 
         int flag = 0;
-        //flag += running_RGB_run(1,5);
-        flag += accumulating_RGB_run(2,35);
-//        flag += accumulating_1_RGB_run(1,7);
-        flag += accumulating_n_RGB_run(1,1);
+        //flag += running_RGB_run(0,5);
+        //flag += accumulating_RGB_run(2,35);
+        //flag += accumulating_1_RGB_run(1,7);
+        //flag += accumulating_n2_RGB_run(2,2);
+        flag += st_accumulating_n2_RGB_run( &st_accumulating_n2_RGB_2_2);
+        flag += st_accumulating_n2_RGB_run( &st_accumulating_n2_RGB_1_1);
         flag += colorful_RGB_run(0,25);
         if( flag == 0) continue; // замедление
 

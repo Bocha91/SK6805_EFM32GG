@@ -68,7 +68,11 @@
         <configuration Name="Common" file_type="Assembly" />
       </file>
     </folder>
-    <configuration Connection="USB 440005327" Name="Debug" speed="4000" />
+    <configuration
+      Connection="USB 440005327"
+      Name="Debug"
+      gcc_optimization_level="Level 2 balanced"
+      speed="4000" />
     <folder Name="emlib">
       <file file_name="emlib/src/em_acmp.c" />
       <file file_name="emlib/inc/em_acmp.h" />
@@ -165,6 +169,7 @@
       <file file_name="Drivers/segmentlcd.c" />
       <file file_name="Drivers/dmactrl.c" />
     </folder>
+    <configuration Name="Release" gcc_optimization_level="Level 2 balanced" />
   </project>
   <configuration
     Name="Debug"

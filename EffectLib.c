@@ -20,7 +20,7 @@ int colorful_RGB_run(uint8_t tape, uint32_t speed)
     count = 0;
 
   do{
-    color[i++][0].all =init[k++];
+    color[i++][tape].all =init[k++];
     if( k>=INIT_SIZE ) k=0;
   }while( i < TAPE_LENGHT );
 
@@ -114,7 +114,7 @@ int  accumulating_RGB_run(uint8_t tape, uint32_t speed) // speed 1 -очень быстро
     static int start = 0;
     if(start == 0)
     {
-      color[0][tape].all = init[(speed  +clk)  % INIT_SIZE];
+      color[0][tape].all = init[(speed*1+clk) % INIT_SIZE];
       color[1][tape].all = init[(speed*2+clk) % INIT_SIZE];
       color[2][tape].all = init[(speed*3+clk) % INIT_SIZE];
       for(int a=TAPE_LENGHT-1; a>=3 ;a--){
@@ -210,7 +210,7 @@ int  accumulating_1_RGB_run(uint8_t tape, uint32_t speed) // speed 1 -очень быст
         color[LENS*2-1][tape].all,
         color[LENS*3-1][tape].all
     };
-    // ѕереписываею ленту со здвигом на 3 светодиода в сторону дальнего конца
+    // ѕереписываею ленту со cдвигом на 3 светодиода в сторону дальнего конца
     for(int a=(LENS-1); a>=1 ;a--){
         color[LENS*0+a][tape].all = color[LENS*0+(a-1)][tape].all;
         color[a+LENS*1][tape].all = color[(a-1)+LENS*1][tape].all;
@@ -261,6 +261,7 @@ int ost(int ot){ // вернЄт следующее значение делител€ без остатка
     return 0;
 }
 
+// несколько мен€ющихс€ центров зарождени€ с шагом 1
 int  accumulating_n_RGB_run(uint8_t tape, uint32_t speed) // speed 1 -очень быстро 100 медленно 200 ещЄ медленнее
 {
     static int count = 0;
@@ -268,7 +269,6 @@ int  accumulating_n_RGB_run(uint8_t tape, uint32_t speed) // speed 1 -очень быст
     static int clk = 0;
     static int dels = sqrt(TAPE_LENGHT); // число точек зарождени€
     static int LENS;// шаг
-
     static int start = 0;
     if(start == 0)
     {
@@ -278,7 +278,7 @@ int  accumulating_n_RGB_run(uint8_t tape, uint32_t speed) // speed 1 -очень быст
       }
 
       if(dels <= 1 ) dels = sqrt(TAPE_LENGHT);
-      dels = ost((dels<20)?dels:20);
+      dels = ost((dels<20)?dels:20); // новое число точек зарождени€
       LENS = TAPE_LENGHT/dels; 
 
       for( int i=0; i<dels; i++)
@@ -325,8 +325,173 @@ int  accumulating_n_RGB_run(uint8_t tape, uint32_t speed) // speed 1 -очень быст
  
     if(clk > (LENS*(LENS-1)) )
     { start = 0; }
-//    printf("start=%d\n",start);
+//    printf("start=%d\n",start);  // не работает без отладчика
 
     return 1;
 }
 //-------------------------------------------------------------------
+// несколько мен€ющихс€ центров зарождени€ с переменным шагом 
+int  accumulating_n2_RGB_run(uint8_t tape, uint32_t speed) // speed 1 -очень быстро 100 медленно 200 ещЄ медленнее
+{
+    static int count = 0;
+    static uint32_t save[20];
+    static int clk = 0;
+    static int dels = sqrt(TAPE_LENGHT); // число точек зарождени€
+    static int LENS;  // кусочек (его длина)
+    static int n2=1;  // шаг удлинени€
+    static int start = 0;
+
+    if(start == 0)
+    {
+        // гасим ленту
+        for(int i=TAPE_LENGHT-1; i>=0 ;i--){
+            color[i][tape].all = 0;
+        }
+        if(dels <= 1 ) dels = sqrt(TAPE_LENGHT);
+        dels = ost((dels<20)?dels:20);
+        LENS = TAPE_LENGHT/dels;
+        n2 = sqrt(LENS/dels);
+        for( int i=0; i<dels; i++)
+        {
+            color[LENS*i][tape].all = init[(speed*i+clk) % INIT_SIZE];
+            save[i] = 0;      
+        }
+        start++;
+        clk=0;
+        //printf("speed=%d n2=%d dels=%d LENS=%d\n",1+speed*dels*2,n2,dels,LENS);
+
+    }
+
+    //if( ++count < speed*dels*dels/3 ) return 0; // замедление
+    if( ++count < 1+speed*dels*2 ) return 0; // замедление
+    count = 0;
+
+    // запоминаю цвет последних светодиодов
+    uint32_t temp[20];
+    for(int i=0; i<dels; i++)
+    {
+        temp[i] = color[LENS*(i+1)-1][tape].all;
+    }
+
+    // ѕереписываею ленту
+    for( int i=0; i<dels; i++){
+        for(int a=(LENS-1); a>=1 ;a--){
+            color[LENS*i+a][tape].all = color[LENS*i+(a-1)][tape].all;
+        }
+    }
+    // закольцовываю 
+    for( int i=0; i<dels; i++){
+        color[LENS*i][tape].all = temp[i];
+    }
+
+    // удлин€ю
+    for( int i=0; i<dels; i++){
+        if( temp[i] ){
+            save[i] = n2;//temp[i];
+        }else if(save[i] )
+        {
+            color[LENS*i][tape].all = init[(clk+i) % INIT_SIZE];
+            --save[i];
+        }
+    }
+    clk+=n2;
+ 
+    if(clk > (LENS*(LENS-n2)) )
+    { start = 0; }
+
+    return 1;
+}
+/*
+speed=75 n2=1  dels=15 LENS=20
+speed=48 n2=1  dels=12 LENS=25
+speed=33 n2=1  dels=10 LENS=30
+speed=12 n2=2  dels=6  LENS=50
+speed=8  n2=3  dels=5  LENS=60
+speed=5  n2=4  dels=4  LENS=75
+speed=3  n2=5  dels=3  LENS=100
+speed=1  n2=8  dels=2  LENS=150
+speed=0  n2=17 dels=1  LENS=300
+
+*/
+//-------------------------------------------------------------------
+// несколько мен€ющихс€ центров зарождени€ с переменным шагом 
+
+
+st_accumulating_n2_RGB st_accumulating_n2_RGB_init(uint8_t tape, uint32_t speed) // speed 1 -очень быстро 100 медленно 200 ещЄ медленнее
+{
+    st_accumulating_n2_RGB this;
+    this.tape = tape;
+    this.speed = speed;
+    this.count = 0;
+    //save[20];
+    this.clk = 0;
+    this.dels = sqrt(TAPE_LENGHT); // число точек зарождени€
+    //LENS;  // кусочек (его длина)
+    this.n2=1;  // шаг удлинени€
+    this.start = 0;
+    return this;
+}
+
+int  st_accumulating_n2_RGB_run(st_accumulating_n2_RGB *this ) // speed 1 -очень быстро 100 медленно 200 ещЄ медленнее
+{
+
+    if(this->start == 0)
+    {
+        // гасим ленту
+        for(int i=TAPE_LENGHT-1; i>=0 ;i--){
+            color[i][this->tape].all = 0;
+        }
+        if(this->dels <= 1 ) this->dels = sqrt(TAPE_LENGHT);
+        this->dels = ost((this->dels<20)?this->dels:20);
+        this->LENS = TAPE_LENGHT/this->dels;
+        this->n2 = sqrt(this->LENS/this->dels);
+        for( int i=0; i<this->dels; i++)
+        {
+            color[this->LENS*i][this->tape].all = init[(this->speed*i+this->clk) % INIT_SIZE];
+            this->save[i] = 0;      
+        }
+        this->start++;
+        this->clk=0;
+        //printf("speed=%d n2=%d dels=%d LENS=%d\n",1+this->speed*this->dels*2,this->n2,this->dels,this->LENS);
+
+    }
+
+    //if( ++count < speed*dels*dels/3 ) return 0; // замедление
+    if( ++this->count < 1+this->speed*this->dels*2 ) return 0; // замедление
+    this->count = 0;
+
+    // запоминаю цвет последних светодиодов
+    uint32_t temp[20];
+    for(int i=0; i<this->dels; i++)
+    {
+        temp[i] = color[this->LENS*(i+1)-1][this->tape].all;
+    }
+
+    // ѕереписываею ленту
+    for( int i=0; i<this->dels; i++){
+        for(int a=(this->LENS-1); a>=1 ;a--){
+            color[this->LENS*i+a][this->tape].all = color[this->LENS*i+(a-1)][this->tape].all;
+        }
+    }
+    // закольцовываю 
+    for( int i=0; i<this->dels; i++){
+        color[this->LENS*i][this->tape].all = temp[i];
+    }
+
+    // удлин€ю
+    for( int i=0; i<this->dels; i++){
+        if( temp[i] ){
+            this->save[i] = this->n2;//temp[i];
+        }else if(this->save[i] )
+        {
+            color[this->LENS*i][this->tape].all = init[(this->clk+i) % INIT_SIZE];
+            --this->save[i];
+        }
+    }
+    this->clk+=this->n2;
+ 
+    if(this->clk > (this->LENS*(this->LENS-this->n2)) )
+    { this->start = 0; }
+
+    return 1;
+}
