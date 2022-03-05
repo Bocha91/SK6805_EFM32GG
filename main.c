@@ -74,7 +74,7 @@ void ab(int chennal, int *a, int *b) {
 }
 #ifdef DEBUG
 uint32_t dbg[80] = {2, 0xff};
-volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
+volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004L;
 #endif
 
 //#define WDT_CYCLE ((uint32_t*) 0xE0001004L)
@@ -481,7 +481,7 @@ int main(void) {
   GPIO_PinModeSet(gpioPortB, 9, gpioModeInput, 0);
   GPIO_PinModeSet(gpioPortB, 10, gpioModeInput, 0);
   
-  if( GPIO_PinInGet(gpioPortB,9) && GPIO_PinInGet(gpioPortB,10) ) 
+  if( !(GPIO_PinInGet(gpioPortB,9) && GPIO_PinInGet(gpioPortB,10)) ) 
   {
     // termometr DS18B20
 
@@ -603,28 +603,11 @@ int main(void) {
 
   setupTimerA();
 
-  printf("Start LED\n");
+  //printf("Start LED\n");
 
-/*
-   #define INIT_SIZE 12
-   uint32_t init[INIT_SIZE]={ 
-        0x0F0000, 0x000F00, 0x00000F ,
-        0x0F0F00, 0x000F0F, 0x0F000F ,
-        0x0F0703, 0x030F07, 0x07030F ,
-        0x010101, 0x000101, 0x101000 
-   };
-
-#define LINE 0
-*/
-  /*
-  static uint8_t colo = 10;
-
-  colo++;
-  color[0][LINE+1].r = colo;
-  color[1][LINE+1].g = colo;
-  color[2][LINE+1].b = colo;
-  */
-    running_RGB_init(1,16);
+    //running_RGB_init(1,16);
+    //accumulating_RGB_init(2,16);
+    //accumulating_1_RGB_init(1,16);
 
   while (1) {
     /* Go to EM1, while TIMER tuns compare output */
@@ -638,7 +621,10 @@ int main(void) {
 #endif
 
         int flag = 0;
-        flag += running_RGB_run(1,5);
+        //flag += running_RGB_run(1,5);
+        flag += accumulating_RGB_run(2,35);
+//        flag += accumulating_1_RGB_run(1,7);
+        flag += accumulating_n_RGB_run(1,1);
         flag += colorful_RGB_run(0,25);
         if( flag == 0) continue; // замедление
 
@@ -648,12 +634,13 @@ int main(void) {
   }
 }
 
+// Разворачиваю байты побитно для вывода в DMA
 void ColorToRAW(void) {
   uint32_t shi;
   int bits;
   int diod;
   for (diod = 0; diod < TAPE_LENGHT; ++diod) {
-    for (shi = 0x00800000, bits = 0; bits < 24; bits++) // цикл по битам диод
+    for (shi = 0x00800000, bits = 0; bits < 24; bits++) // цикл по битам диодов
     {
       register uint16_t col = 0x0001;
       register uint16_t PWM = 0x0000;

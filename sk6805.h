@@ -13,8 +13,15 @@ typedef union {
 
 extern LED_t color[TAPE_LENGHT][16];
 
-void running_RGB_init(uint8_t tape, uint32_t bright);
+//void running_RGB_init(uint8_t tape, uint32_t bright);
 int running_RGB_run(uint8_t tape, uint32_t speed); // 1 -очень быстро 100 медленно 200 ещё медленнее
+//void accumulating_RGB_init(uint8_t tape, uint32_t bright);
+int accumulating_RGB_run(uint8_t tape, uint32_t speed); // 1 -очень быстро 100 медленно 200 ещё медленнее
+//void accumulating_1_RGB_init(uint8_t tape, uint32_t bright);
+int accumulating_1_RGB_run(uint8_t tape, uint32_t speed); // 1 -очень быстро 100 медленно 200 ещё медленнее
+
+
+int accumulating_n_RGB_run(uint8_t tape, uint32_t speed); // 1 -очень быстро 100 медленно 200 ещё медленнее
 
 //void colorful_RGB_init(uint8_t tape, uint32_t bright);
 int colorful_RGB_run(uint8_t tape, uint32_t speed);

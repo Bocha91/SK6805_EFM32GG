@@ -24,6 +24,7 @@
   <ProjectSessionItem path="SK6805_EFM32GG"/>
   <ProjectSessionItem path="SK6805_EFM32GG;SK6805_EFM32GG"/>
   <ProjectSessionItem path="SK6805_EFM32GG;SK6805_EFM32GG;CMSIS Files"/>
+  <ProjectSessionItem path="SK6805_EFM32GG;SK6805_EFM32GG;emlib"/>
   <ProjectSessionItem path="SK6805_EFM32GG;SK6805_EFM32GG;Source Files"/>
   <ProjectSessionItem path="SK6805_EFM32GG;SK6805_EFM32GG;Source Files;ds18b20"/>
   <ProjectSessionItem path="SK6805_EFM32GG;SK6805_EFM32GG;System Files"/>
@@ -48,8 +49,17 @@
  </TraceWindow>
  <Watch1>
   <Watches active="1" update="Never">
-   <Watchpoint expression="dbg" name="dbg" radix="-1" linenumber="730" filename="main.c"/>
-   <Watchpoint expression="a" name="a" radix="16" linenumber="0" filename="../SK6805_EFM32GG"/>
+   <Watchpoint expression="dbg" name="dbg" radix="-1" linenumber="717" filename="main.c"/>
+   <Watchpoint expression="color[0][1].all" name="color[0][1].all" radix="-1" linenumber="0" filename=""/>
+   <Watchpoint expression="color[1][1].all" name="color[1][1].all" radix="-1" linenumber="165" filename="EffectLib.c"/>
+   <Watchpoint expression="color[2][1].all" name="color[2][1].all" radix="-1" linenumber="0" filename=""/>
+   <Watchpoint expression="a" name="a" radix="16" linenumber="0" filename=""/>
+   <Watchpoint expression="TAPE_LENGHT-1" name="TAPE_LENGHT-1" radix="-1" linenumber="0" filename=""/>
+   <Watchpoint expression="color[300-3][1].all" name="color[300-3][1].all" radix="-1" linenumber="0" filename=""/>
+   <Watchpoint expression="color[300-2][1].all" name="color[300-2][1].all" radix="-1" linenumber="0" filename=""/>
+   <Watchpoint expression="color[300-1][1].all" name="color[300-1][1].all" radix="-1" linenumber="0" filename=""/>
+   <Watchpoint expression="save" name="save" radix="-1" linenumber="0" filename=""/>
+   <Watchpoint expression="temp" name="temp" radix="-1" linenumber="0" filename=""/>
   </Watches>
  </Watch1>
  <Watch2>
@@ -62,9 +72,10 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="15" y="651" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="main.c" selected="1" top="611" codecName="UTF-8"/>
-  <SessionOpenFile windowGroup="DockEditRight" x="0" y="21" useTextEdit="1" openedFrom="E:/PCAD/SK6805_EFM32GG/EffectLib.c" useBinaryEdit="0" left="0" path="sk6805.h" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditRight" x="33" y="54" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="EffectLib.c" selected="0" top="40" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditRight" x="0" y="22" useTextEdit="1" openedFrom="E:/PCAD/SK6805_EFM32GG/EffectLib.c" useBinaryEdit="0" left="0" path="sk6805.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditRight" x="13" y="274" useTextEdit="1" openedFrom="E:/PCAD/SK6805_EFM32GG/main.c" useBinaryEdit="0" left="0" path="EffectLib.c" selected="0" top="255" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="429" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="main.c" selected="1" top="403" codecName="UTF-8"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="475" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="emlib/inc/em_timer.h" selected="0" top="431" codecName=""/>
  </Files>
  <ARMCrossStudioWindow activeProject="SK6805_EFM32GG" fileDialogDefaultFilter="*.c;*.h" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="E:/PCAD/SK6805_EFM32GG" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>
